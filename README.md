@@ -1,1 +1,1 @@
-# ts-pattern-matching
+# ts-trading-view-api
