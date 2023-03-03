@@ -1,11 +1,11 @@
 export class Market {
-    constructor(private symbol: string) {}
+    constructor(public symbol: string) {}
 
     genSessionID(): string {
-        return `${this.symbol}_$`
+        return `${this.symbol}_$`;
     }
 
     genSeriesID(): string {
-        return `${this.symbol}_$$`
+        return `${this.symbol}_$$`;
     }
 }

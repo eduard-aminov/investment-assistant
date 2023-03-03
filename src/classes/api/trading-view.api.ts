@@ -1,4 +1,4 @@
-import { RawData, WebSocket } from 'ws';
+import { WebSocket } from 'ws';
 import { ChartMessageSender } from '../senders/chart-message-sender.js';
 import { RawMessagesPacket } from '../packets/raw-messages-packet.js';
 import { PongPacket } from '../packets/pong-packet.js';
@@ -10,32 +10,24 @@ import { SeriesMessageSender } from '../senders/series-message-sender.js';
 import { StudyMessageSender } from '../senders/study-message-sender.js';
 import { SymbolMessageSender } from '../senders/symbol-message-sender.js';
 import { TimezoneMessageSender } from '../senders/timezone-message-sender.js';
+import { Sender } from '../../interfaces/sender.interface.js';
+import { Indicator } from '../../interfaces/indicator.interface.js';
 
-type OpenWebSocketHandler = () => void;
-type CloseWebSocketHandler = () => void;
-type MessageWebSocketHandler = (data: RawData) => void;
+type MessageWebSocketHandler = (data: any) => void;
 
 export class TradingViewApi {
     private ws: WebSocket;
 
-    private _onConnect: OpenWebSocketHandler = () => {};
-    private _onDisconnect: CloseWebSocketHandler = () => {};
     private _onMessage: MessageWebSocketHandler = () => {};
+
+    private readonly senders: Sender[];
 
     constructor() {
         this.ws = new WebSocket('wss://data.tradingview.com/socket.io/websocket', {
             origin: 'https://s.tradingview.com',
         });
-    }
 
-    onConnect(handler: OpenWebSocketHandler): this {
-        this._onConnect = handler;
-        return this;
-    }
-
-    onDisconnect(handler: CloseWebSocketHandler): this {
-        this._onDisconnect = handler;
-        return this;
+        this.senders = [];
     }
 
     onMessage(handler: MessageWebSocketHandler): this {
@@ -44,8 +36,12 @@ export class TradingViewApi {
     }
 
     connect(): void {
-        this.ws.on('open', this._onConnect);
-        this.ws.on('close', this._onDisconnect);
+        this.ws.on('open', () => {
+            for (const sender of this.senders) {
+                sender.send();
+            }
+        });
+
         this.ws.on('message', data => {
             const rawMessagesPacket = new RawMessagesPacket(data);
 
@@ -70,91 +66,56 @@ export class TradingViewApi {
     }
 
     setAuthToken(token: string): void {
-        new AuthMessageSender(this.ws)
-            .setToken(token)
-            .send();
+        this.senders.push(new AuthMessageSender(this.ws).setToken(token));
     }
 
     setLocale(locale: string): void {
         const [code, id] = locale.split('-');
         if (code && id) {
-            new LocaleMessageSender(this.ws)
-                .set([code, id])
-                .send();
+            this.senders.push(new LocaleMessageSender(this.ws).set([code, id]));
         }
     }
 
     switchTimezone(sessionId: string, timezone: string): void {
-        new TimezoneMessageSender(this.ws)
-            .switch(sessionId, timezone)
-            .send();
+        this.senders.push(new TimezoneMessageSender(this.ws).switch(sessionId, timezone));
     }
 
     chartCreateSession(sessionId: string): void {
-        new ChartMessageSender(this.ws)
-            .createSession(sessionId)
-            .send();
+        this.senders.push(new ChartMessageSender(this.ws).createSession(sessionId));
     }
 
     quoteCreateSession(sessionId: string): void {
-        new QuoteMessageSender(this.ws)
-            .createSession(sessionId)
-            .send();
+        this.senders.push(new QuoteMessageSender(this.ws).createSession(sessionId));
     }
 
     quoteSetFields(fields: string[]): void {
-        new QuoteMessageSender(this.ws)
-            .setFields(fields)
-            .send();
+        this.senders.push(new QuoteMessageSender(this.ws).setFields(fields));
     }
 
     quoteFastSymbols(): void {
-        new QuoteMessageSender(this.ws)
-            .fastSymbols()
-            .send();
+        this.senders.push(new QuoteMessageSender(this.ws).fastSymbols());
     }
 
     quoteAddSymbols(symbols: string[]): void {
-        new QuoteMessageSender(this.ws)
-            .addSymbols(symbols)
-            .send();
+        this.senders.push(new QuoteMessageSender(this.ws).addSymbols(symbols));
     }
 
     quoteRemoveSymbols(symbols: string[]): void {
-        new QuoteMessageSender(this.ws)
-            .removeSymbols(symbols)
-            .send();
+        this.senders.push(new QuoteMessageSender(this.ws).removeSymbols(symbols));
     }
 
-    createSeries(
-        sessionId: string,
-        seriesId: string,
-        timeframe: string,
-        range: number,
-    ): void {
-        new SeriesMessageSender(this.ws)
-            .create(sessionId, seriesId, timeframe, range)
-            .send();
+    createSeries(sessionId: string, seriesId: string, timeframe: string, range: number,): void {
+        this.senders.push(new SeriesMessageSender(this.ws).create(sessionId, seriesId, timeframe, range));
     }
 
-    createStudy(
-        sessionId: string,
-        studyId: string,
-        indicatorId: string,
-        indicatorParams = {},
-    ): void {
-        new StudyMessageSender(this.ws)
-            .create(sessionId, studyId, indicatorId, indicatorParams)
-            .send();
+    createStudy(sessionId: string, indicator: Indicator): void {
+        const indicatorId = indicator.id;
+        const indicatorName = indicator.name;
+        const indicatorParams = indicator.buildRequestParams();
+        this.senders.push(new StudyMessageSender(this.ws).create(sessionId, indicatorName, indicatorId, indicatorParams));
     }
 
-    resolveSymbol(
-        symbol: string,
-        sessionId: string,
-        seriesId: string,
-    ): void {
-        new SymbolMessageSender(this.ws)
-            .resolve(symbol, sessionId, seriesId)
-            .send();
+    resolveSymbol(symbol: string, sessionId: string, seriesId: string,): void {
+        this.senders.push(new SymbolMessageSender(this.ws).resolve(symbol, sessionId, seriesId));
     }
 }

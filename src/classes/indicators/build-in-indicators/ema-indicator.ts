@@ -33,14 +33,16 @@ const DEFAULT_OPTIONS: EmaIndicatorOptions = {
 };
 
 export class EmaIndicator implements LineIndicator {
-    length: number;
     id: string;
+    name: string;
+    length: number;
 
     private _options: EmaIndicatorOptions;
 
-    constructor(options: Partial<EmaIndicatorOptions>) {
+    constructor(name: string, options: Partial<EmaIndicatorOptions> & { length: number }) {
         this._options = { ...DEFAULT_OPTIONS, ...options };
         this.id = 'Script@tv-scripting-101!';
+        this.name = name;
         this.length = this._options.length;
     }
 
@@ -58,5 +60,9 @@ export class EmaIndicator implements LineIndicator {
             .param5(new IndicatorRequestParamResolutionOption(this._options.timeframe))
             .param6(new IndicatorRequestParamBoolOption(this._options.gaps))
             .build();
+    }
+
+    normalizeRawData(data: any): object {
+        return data.st.at(-1)!.v;
     }
 }

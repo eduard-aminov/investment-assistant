@@ -44,12 +44,6 @@ export class MessagesPacket implements Packet {
         this.data = this.resolveAndCreateMessages(rawMessages);
     }
 
-    handleMessages(handlers: {
-        du: (data: DuRawMessageData) => void,
-    }): void {
-        this.data.forEach(message => message.handle(handlers));
-    }
-
     private resolveAndCreateMessages(rawMessages: RawMessage[]): Message[] {
         return rawMessages.map(rawMessage => {
             switch (rawMessage.m) {
