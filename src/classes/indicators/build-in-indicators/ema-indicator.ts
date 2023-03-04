@@ -33,17 +33,27 @@ const DEFAULT_OPTIONS: EmaIndicatorOptions = {
 };
 
 export class EmaIndicator implements LineIndicator {
+    sessionId: string;
+    seriesId: string;
     id: string;
     name: string;
     length: number;
 
     private _options: EmaIndicatorOptions;
+    private _fractionalPartLength: number | undefined;
 
     constructor(name: string, options: Partial<EmaIndicatorOptions> & { length: number }) {
+        this.sessionId = `${name}_${Math.random()}`;
+        this.seriesId = `${name}_${Math.random()}`;
         this._options = { ...DEFAULT_OPTIONS, ...options };
         this.id = 'Script@tv-scripting-101!';
         this.name = name;
         this.length = this._options.length;
+    }
+
+    setFractionPartLength(length: number): this {
+        this._fractionalPartLength = length;
+        return this;
     }
 
     buildRequestParams(): object {
@@ -62,7 +72,15 @@ export class EmaIndicator implements LineIndicator {
             .build();
     }
 
-    normalizeRawData(data: any): object {
-        return data.st.at(-1)!.v;
+    normalizeRawData(data: any): unknown {
+        const result = data.st?.at(-1)?.v?.[1];
+
+        if (result && !String(result).includes('e')) {
+            if (this._fractionalPartLength) {
+                return `${this.name}: ${result.toFixed(this._fractionalPartLength)}`;
+            }
+            return `${this.name}: ${result}`;
+        }
+        return null;
     }
 }

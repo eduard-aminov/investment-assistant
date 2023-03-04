@@ -344,16 +344,6 @@
 //                 'text': '0DdSUE8wRzucFjlqHB91ag==_kyPbu4glBrkcG0brD4FhCw9577CTnQBq6OFqKimD/nRUEp68X5RDyO3r/SvZ4VtLyqMYsAGMrLEM42I/ZahhslmF3H0oI8txp4Czd/AKwxu1Ck+ssZnWbqN0V5CMsYek+zYNquC4dc7um4h/EpxRVkVMrJMxvxJS3yUuFYPLhRaIVGhjShxinlYtiRxIrGFlPDey7ML5xj0RHTZe4RgOIwLC562AhxrmL60xy+K6hc+I0pPyoNPh6+qbVyzV9HZH/ZggUQLl9q0SYkMqBxu64rFsGU571PNnHKkaX0hvOGam1OyPrj0EhJMdQkwBpLvgQGk89mF1ZnkxdKehSfTfhc1nO7DECW5wx2apsLc1/Ccj6jP/Y5xWi83o6Ex/OB37mcrItv8P6Q+2me97dw4KFf5RQl5i8HavBWAh2bP+UMwQheoOMyJSZHdvVxYxe3LyrueAsxCROhmIBbJ1D+QHEPCL+e2+PVj1Nc9iBwn2zwDSYPTFkDoWla3fknCecrc/ZIGenI2vQT/coJZJC5loA5ziAMmm38btwzd7Whox9m5C+QHk4TIfIJ7FGVAxs1BL9O2MZujNM1K6ic/TloPQcKMUU9pitUpctJ07vrZ12AMLSAVlFjUw+wH/+J3ABwTsOhEvRCnrAoM0dhu8IEOurBP20DbjP6m2NpIjagL4ejt3l7qP22+Tn11V7eaHmF2u6RTNrKjeG0bJXlLRWlLtnFANqd3E1XxdkLOR8egUTaKAggUSqHZ8G2prfIDzVu7Q6j7DEIqczdFK2uNSfQoUCYqZK6pJYeDiE9yGyeHZ0K0IdG2PWB+2sn1SIuh8Lfa7FZjqjRBoMEBP2GAwMoG6tOBmfWSonXJrOmr5yYXlWw96UontIbY6xty6B4cJ0bDlQdGUy2vocxZcqAkXEezPVko7cAhKaNxeJkp0oiAEtxz+I1UgkWwnzetKQMhFnsDpELAnpYZLc55R6QEMoz9c1Lrli4WbaZGN4thBlgnmrhLaR8ftieieBuLJC/as+1qn3n+31ZNlpWFz5aI81ibGQ5T/asu4x6hck4X7cuO2OO3if8/NdLy3XXD2m74m057hZzM3CuVJJqpsyo7oOHB6uEf1Vajk2PGS2YEBG7H0pxRi/FbYdbjakDmVWNHjvoXOPaGtQcsFLoLU4ksL7y3YddanWj4CiqqMLsSTuCoL4GSOW39YAILk/rUSW1zt5Gg5hZ4pVzIIFejPIhr2HZLfA15lto8oUufGgkBXMqBqHR+ydWt6fyL07/wwpWJ28npB65WHB4KwtCo4NZncuw0mWq7gBpmQmvFBXUlmVK+ZwLvJu6aZG9PGb3Th37DkDYbza3B0jN16NvpoYh/c8AzrWjJoOMPdNR0bvSQVzvLxhpbFzxLLBnAi9m2Kds7gbRzZJ1mczkiS4vND2At+LPoauvpI0fRqxytQYIuY2ZJJbL7r07zphlT6jW3tTd0CSxImjDOEhaaxAvqzAk+U0whhlMYvv20P51HMzmKa2cdK93AO6TKm6STlxavS0CvTlONRhCVAV2OfU4XvmGFnKGLYm1SI8ozQNDIPcChGUj/OOCDveNbj1ul2VyjLefmRZhz7UOTdOZJlO+V9BnP/UcZtMMa8bMXZZFXhK3YPBnTGvp2uj7xdFPCfUaxUn24TxgwSnkmRqvMJ5loWLfALS3YLruU8HFz2IRUuTYYNVcaG4uK0pVK+EzPQpoN09kwnqlng8Ktv9TXvhyV9MYdmmwyyvAUv5dJc+KxpNSHqDEXfxUL3MByggGWjuiDtbEHMZupRcRPS6x4YelcsoJRXfRv6g6uKrGCJUJpcTENb81ntsMho/lLxXXc9SEujyBi2hMmUA/JQMQXjqxtfD4b+3XTQbQuJl8Rd6Q==',
 //                 'pineId': 'PUB;1085',
 //                 'pineVersion': '-1.0',
-//                 'in_0': {
-//                     'v': 163,
-//                     'f': true,
-//                     't': 'integer'
-//                 },
-//                 'in_1': {
-//                     'v': 'close',
-//                     'f': true,
-//                     't': 'source'
-//                 },
 //                 'in_2': {
 //                     'v': true,
 //                     'f': true,
@@ -417,15 +407,20 @@
 import { Chart } from './classes/chart/chart.js';
 import { Market } from './classes/markets/market.js';
 import { TradingViewApi } from './classes/api/trading-view.api.js';
-import { EmaIndicator } from './classes/indicators/build-in-indicators/ema-indicator.js';
+import { MtfEmaIndicator } from './classes/indicators/custom-indicators/mtf-ema-indicator.js';
 
 const tradingViewApi = new TradingViewApi();
-const btcFuture = new Market('BTCUSDTPERP');
-const ema20Indicator = new EmaIndicator('EMA20BTC', { length: 20 });
+const btc = new Market('BTCUSDT');
+const mtf_ema_163 = new MtfEmaIndicator('MTFEMA_163_BTC', {
+    length: 163,
+    show5M: true,
+    show15M: true,
+    show1D: true,
+}).setFractionPartLength(2);
 
 const chart = new Chart(tradingViewApi)
-    .setMarket(btcFuture)
-    .setIndicators([ema20Indicator])
+    .setMarket(btc)
+    .setIndicators([mtf_ema_163])
     .setOnMessage(data => console.log(data));
 
 chart.connect();

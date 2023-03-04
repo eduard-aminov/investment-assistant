@@ -5,9 +5,6 @@ import { TradingViewApi } from '../api/trading-view.api.js';
 type MessageHandler = (data: any) => void;
 
 export class Chart {
-    private sessionId: string | undefined;
-    private seriesId: string | undefined;
-
     private market: Market | undefined;
     private indicators: Indicator[];
 
@@ -24,8 +21,6 @@ export class Chart {
 
     setMarket(market: Market): this {
         this.market = market;
-        this.sessionId = this.market.genSessionID();
-        this.seriesId = this.market.genSeriesID();
         return this;
     }
 
@@ -35,33 +30,24 @@ export class Chart {
     }
 
     connect(): void {
-        this.canConnect();
         this.tradingViewApi.onMessage(data => {
-            if (data[0] === this.sessionId) {
-                for (const indicator of this.indicators) {
-                    if (data[1][indicator.name]) {
-                        this.onMessage(indicator.normalizeRawData(data[1][indicator.name]));
-                    }
+            for (const indicator of this.indicators) {
+                if (data[0] === indicator.sessionId && data[1][indicator.name]) {
+                    this.onMessage(indicator.normalizeRawData(data[1][indicator.name]));
                 }
             }
         });
 
         this.tradingViewApi.connect();
 
-        const { sessionId, seriesId, market } = this;
-
-        this.tradingViewApi.chartCreateSession(sessionId!);
-        this.tradingViewApi.resolveSymbol(market!.symbol, sessionId!, seriesId!);
+        const { market } = this;
 
         for (const indicator of this.indicators!) {
+            const { sessionId, seriesId } = indicator;
+            this.tradingViewApi.chartCreateSession(sessionId!);
+            this.tradingViewApi.resolveSymbol(market!.symbol, sessionId!, seriesId!);
             this.tradingViewApi.createSeries(sessionId!, seriesId!, '1', 100);
             this.tradingViewApi.createStudy(sessionId!, indicator);
-        }
-    }
-
-    private canConnect(): void {
-        if (!this.sessionId) {
-            throw new Error(`Please set market before subscribe`);
         }
     }
 }

@@ -58,6 +58,21 @@ export class IndicatorRequestParamBuilder {
         return this;
     }
 
+    param7(value: IndicatorRequestParamOption): this {
+        this.params['in_7'] = value;
+        return this;
+    }
+
+    param8(value: IndicatorRequestParamOption): this {
+        this.params['in_8'] = value;
+        return this;
+    }
+
+    param9(value: IndicatorRequestParamOption): this {
+        this.params['in_9'] = value;
+        return this;
+    }
+
     build(): object {
         return this.params;
     }
