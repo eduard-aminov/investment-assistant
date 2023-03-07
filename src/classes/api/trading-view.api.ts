@@ -17,6 +17,7 @@ type MessageWebSocketHandler = (data: any) => void;
 
 export class TradingViewApi {
     private ws: WebSocket;
+    private connected: boolean;
 
     private _onMessage: MessageWebSocketHandler = () => {};
 
@@ -26,7 +27,7 @@ export class TradingViewApi {
         this.ws = new WebSocket('wss://data.tradingview.com/socket.io/websocket', {
             origin: 'https://s.tradingview.com',
         });
-
+        this.connected = false;
         this.senders = [];
     }
 
@@ -36,29 +37,32 @@ export class TradingViewApi {
     }
 
     connect(): void {
-        this.ws.on('open', () => {
-            for (const sender of this.senders) {
-                sender.send();
-            }
-        });
+        if (!this.connected) {
+            this.ws.on('open', () => {
+                for (const sender of this.senders) {
+                    sender.send();
+                }
+            });
 
-        this.ws.on('message', data => {
-            const rawMessagesPacket = new RawMessagesPacket(data);
+            this.ws.on('message', data => {
+                const rawMessagesPacket = new RawMessagesPacket(data);
 
-            if (rawMessagesPacket.isPing()) {
-                const pongPacket = new PongPacket(rawMessagesPacket);
-                this.ws.send(pongPacket.data);
-                return;
-            }
+                if (rawMessagesPacket.isPing()) {
+                    const pongPacket = new PongPacket(rawMessagesPacket);
+                    this.ws.send(pongPacket.data);
+                    return;
+                }
 
-            const messagesPacket = new MessagesPacket(rawMessagesPacket);
+                const messagesPacket = new MessagesPacket(rawMessagesPacket);
 
-            if (messagesPacket.hasInitialMessage) {
-                return;
-            }
+                if (messagesPacket.hasInitialMessage) {
+                    return;
+                }
 
-            messagesPacket.data.forEach(message => this._onMessage(message.data));
-        });
+                messagesPacket.data.forEach(message => this._onMessage(message.data));
+            });
+        }
+        this.connected = true;
     }
 
     disconnect(): void {

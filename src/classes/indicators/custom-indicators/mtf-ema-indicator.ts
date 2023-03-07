@@ -30,6 +30,17 @@ const DEFAULT_OPTIONS: MtfEmaIndicatorOptions = {
     show1D: false,
 };
 
+export interface MtfEmaIndicatorValues {
+    M1: number,
+    M5: number,
+    M15: number,
+    M30: number,
+    H1: number,
+    H2: number,
+    H4: number,
+    D1: number,
+}
+
 export class MtfEmaIndicator implements LineIndicator {
     sessionId: string;
     seriesId: string;
@@ -38,7 +49,6 @@ export class MtfEmaIndicator implements LineIndicator {
     length: number;
 
     private _options: MtfEmaIndicatorOptions;
-    // @ts-ignore
     private _fractionalPartLength: number | undefined;
 
     constructor(name: string, options: Partial<MtfEmaIndicatorOptions> & { length: number }) {
@@ -72,7 +82,7 @@ export class MtfEmaIndicator implements LineIndicator {
             .build();
     }
 
-    normalizeRawData(data: any): unknown {
+    normalizeRawData(data: any): MtfEmaIndicatorValues {
         const result = data.st?.at(-1)?.v?.map((i: number) => {
             if (String(i).includes('e')) {
                 return null;
@@ -80,24 +90,15 @@ export class MtfEmaIndicator implements LineIndicator {
             return this._fractionalPartLength ? i.toFixed(this._fractionalPartLength) : i;
         });
 
-        const M1 = result[1];
-        const M5 = result[2];
-        const M15 = result[4];
-        const M30 = result[6];
-        const H1 = result[8];
-        const H2 = result[10];
-        const H4 = result[12];
-        const D1 = result[14];
-
-        return `
-            1M: ${M1 ?? 'no data'},
-            5M: ${M5 ?? 'no data'},
-            15M: ${M15 ?? 'no data'},
-            30M: ${M30 ?? 'no data'},
-            1H: ${H1 ?? 'no data'},
-            2H: ${H2 ?? 'no data'},
-            4H: ${H4 ?? 'no data'},
-            1D: ${D1 ?? 'no data'},
-        `;
+        return {
+            M1: result[1],
+            M5: result[2],
+            M15: result[4],
+            M30: result[6],
+            H1: result[8],
+            H2: result[10],
+            H4: result[12],
+            D1: result[14],
+        };
     }
 }

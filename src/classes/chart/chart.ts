@@ -1,17 +1,20 @@
 import { Market } from '../markets/market.js';
 import { Indicator } from '../../interfaces/indicator.interface.js';
 import { TradingViewApi } from '../api/trading-view.api.js';
+// import { Robot } from '../../interfaces/robot.interface.js';
 
 type MessageHandler = (data: any) => void;
 
 export class Chart {
     private market: Market | undefined;
     private indicators: Indicator[];
+    // private robots: Robot[];
 
     private onMessage: MessageHandler = () => {};
 
     constructor(private tradingViewApi: TradingViewApi) {
         this.indicators = [];
+        // this.robots = [];
     }
 
     setOnMessage(handler: MessageHandler): this {
@@ -29,11 +32,18 @@ export class Chart {
         return this;
     }
 
+    // setRobots(robots: Robot[]): this {
+    //     this.robots = robots;
+    //     return this;
+    // }
+
     connect(): void {
         this.tradingViewApi.onMessage(data => {
-            for (const indicator of this.indicators) {
-                if (data[0] === indicator.sessionId && data[1][indicator.name]) {
-                    this.onMessage(indicator.normalizeRawData(data[1][indicator.name]));
+            if (data) {
+                for (const indicator of this.indicators) {
+                    if (data[0] === indicator.sessionId && data[1][indicator.name]) {
+                        this.onMessage(indicator.normalizeRawData(data[1][indicator.name]));
+                    }
                 }
             }
         });
