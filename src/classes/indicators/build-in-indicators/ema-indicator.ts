@@ -33,8 +33,6 @@ const DEFAULT_OPTIONS: EmaIndicatorOptions = {
 };
 
 export class EmaIndicator implements LineIndicator {
-    sessionId: string;
-    seriesId: string;
     id: string;
     name: string;
     length: number;
@@ -43,8 +41,6 @@ export class EmaIndicator implements LineIndicator {
     private _fractionalPartLength: number | undefined;
 
     constructor(name: string, options: Partial<EmaIndicatorOptions> & { length: number }) {
-        this.sessionId = `${name}_${Math.random()}`;
-        this.seriesId = `${name}_${Math.random()}`;
         this._options = { ...DEFAULT_OPTIONS, ...options };
         this.id = 'Script@tv-scripting-101!';
         this.name = name;

@@ -1,3 +1,3 @@
 export interface Robot {
-    run(): void;
+    onMessage(data: any): void;
 }

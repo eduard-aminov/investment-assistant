@@ -1,11 +1,41 @@
 import { TradingViewApi } from './classes/api/trading-view.api.js';
-import { MtfEmaCrossingRobot } from './classes/robots/mtf-ema-crossing-robot.js';
+import { Chart } from './classes/chart/chart.js';
 import { Market } from './classes/markets/market.js';
-import { binanceFuturesSymbols } from './entities/markets/binance/binance-futures.js';
+import { MtfEmaIndicator } from './classes/indicators/custom-indicators/mtf-ema-indicator.js';
+import { MtfEmaCrossingRobot } from './classes/robots/mtf-ema-crossing-robot.js';
+import { TradingViewConnection } from './classes/connections/trading-view-connection.js';
+import { moexSymbols } from './entities/markets/moex/moex.js';
+import { TRADING_VIEW_AUTH_TOKEN } from './constants.js';
 
 const twa = new TradingViewApi();
+const twConnection = new TradingViewConnection(twa);
 
-for (const symbol of binanceFuturesSymbols) {
-    const robot = new MtfEmaCrossingRobot(twa, new Market(symbol));
-    robot.run();
-}
+const charts = moexSymbols.map(symbol => {
+    const market = new Market(symbol);
+    const mtfEmaIndicator = new MtfEmaIndicator(
+        `MTFEMA_163_${symbol}`,
+        {
+            length: 163,
+            show5M: true,
+            show15M: true,
+            show30M: true,
+            show1H: true,
+            show2H: true,
+            show4H: true,
+            show1D: true,
+        })
+        .setFractionPartLength(2);
+
+    const mtfEmaCrossingRobot = new MtfEmaCrossingRobot(market);
+
+    return new Chart()
+        .setMarket(market)
+        .setIndicators([mtfEmaIndicator])
+        .setRobots([mtfEmaCrossingRobot]);
+});
+
+twa.setAuthToken(TRADING_VIEW_AUTH_TOKEN);
+twConnection.setCharts(charts);
+twConnection.initializeChartsIndicators();
+
+twConnection.start();

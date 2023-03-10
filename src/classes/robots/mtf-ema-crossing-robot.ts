@@ -2,46 +2,21 @@ import { Robot } from '../../interfaces/robot.interface.js';
 import { TelegramChatNotification } from '../notifications/telegram-chat-notification.js';
 import { TELEGRAM_BOT_TOKEN, TELEGRAM_USER_ID } from '../../constants.js';
 import { Market } from '../markets/market.js';
-import { MtfEmaIndicator, MtfEmaIndicatorValues } from '../indicators/custom-indicators/mtf-ema-indicator.js';
-import { TradingViewApi } from '../api/trading-view.api.js';
-import { Chart } from '../chart/chart.js';
+import { MtfEmaIndicatorValues } from '../indicators/custom-indicators/mtf-ema-indicator.js';
 
 export class MtfEmaCrossingRobot implements Robot {
-
-    private chart: Chart;
-    private mtfEmaIndicator: MtfEmaIndicator;
     private telegramNotification: TelegramChatNotification;
 
     private previousData: MtfEmaIndicatorValues | undefined;
+    private previousMessage: string | undefined;
 
-    constructor(tradingViewApi: TradingViewApi, private market: Market) {
+    constructor(private market: Market) {
 
         this.telegramNotification = new TelegramChatNotification(TELEGRAM_USER_ID, TELEGRAM_BOT_TOKEN);
-
-        this.mtfEmaIndicator = new MtfEmaIndicator(
-            `MTFEMA_163_${market.symbol}`,
-            {
-                length: 163,
-                show5M: true,
-                show15M: true,
-                show30M: true,
-                show1H: true,
-                show2H: true,
-                show4H: true,
-                show1D: true,
-            });
-
-        this.chart = new Chart(tradingViewApi)
-            .setMarket(market)
-            .setIndicators([this.mtfEmaIndicator])
-            .setOnMessage(this.handleResponse);
     }
 
-    run(): void {
-        this.chart.connect();
-    }
-
-    private handleResponse = (data: MtfEmaIndicatorValues) => {
+    onMessage = (data: MtfEmaIndicatorValues): void => {
+        console.log(data);
         const crossingTimeframes: Array<Array<keyof MtfEmaIndicatorValues>> = [
             ['M1', 'M5'],
             ['M5', 'M15'],
@@ -54,7 +29,11 @@ export class MtfEmaCrossingRobot implements Robot {
 
         for (const [timeframe1, timeframe2] of crossingTimeframes) {
             if (this.isCrossing(data, this.previousData, timeframe1!, timeframe2!)) {
-                this.telegramNotification.notify(this.buildCrossingMessage(timeframe1!, timeframe2!));
+                const message = this.buildCrossingMessage(timeframe1!, timeframe2!);
+                if (this.previousMessage !== message) {
+                    this.telegramNotification.notify(message);
+                    this.previousMessage = message;
+                }
             }
         }
 

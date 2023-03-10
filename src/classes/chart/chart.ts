@@ -1,26 +1,28 @@
-import { Market } from '../markets/market.js';
 import { Indicator } from '../../interfaces/indicator.interface.js';
+import { Market } from '../markets/market.js';
+import { Robot } from '../../interfaces/robot.interface.js';
 import { TradingViewApi } from '../api/trading-view.api.js';
-// import { Robot } from '../../interfaces/robot.interface.js';
-
-type MessageHandler = (data: any) => void;
 
 export class Chart {
-    private market: Market | undefined;
+    private market: Market | null;
     private indicators: Indicator[];
-    // private robots: Robot[];
+    private robots: Robot[];
 
-    private onMessage: MessageHandler = () => {};
-
-    constructor(private tradingViewApi: TradingViewApi) {
+    constructor() {
+        this.market = null;
         this.indicators = [];
-        // this.robots = [];
+        this.robots = [];
     }
 
-    setOnMessage(handler: MessageHandler): this {
-        this.onMessage = handler;
-        return this;
-    }
+    onMessage = (data: any): void => {
+        if (data && data[1]) {
+            for (const indicator of this.indicators) {
+                if (data[1][indicator.name]) {
+                    this.robots.forEach(robot => robot.onMessage(indicator.normalizeRawData(data[1][indicator.name])));
+                }
+            }
+        }
+    };
 
     setMarket(market: Market): this {
         this.market = market;
@@ -32,32 +34,20 @@ export class Chart {
         return this;
     }
 
-    // setRobots(robots: Robot[]): this {
-    //     this.robots = robots;
-    //     return this;
-    // }
+    setRobots(robots: Robot[]): this {
+        this.robots = robots;
+        return this;
+    }
 
-    connect(): void {
-        this.tradingViewApi.onMessage(data => {
-            if (data) {
-                for (const indicator of this.indicators) {
-                    if (data[0] === indicator.sessionId && data[1][indicator.name]) {
-                        this.onMessage(indicator.normalizeRawData(data[1][indicator.name]));
-                    }
-                }
-            }
-        });
-
-        this.tradingViewApi.connect();
-
-        const { market } = this;
-
+    initializeIndicators(tradingViewApi: TradingViewApi): void {
         for (const indicator of this.indicators!) {
-            const { sessionId, seriesId } = indicator;
-            this.tradingViewApi.chartCreateSession(sessionId!);
-            this.tradingViewApi.resolveSymbol(market!.symbol, sessionId!, seriesId!);
-            this.tradingViewApi.createSeries(sessionId!, seriesId!, '1', 100);
-            this.tradingViewApi.createStudy(sessionId!, indicator);
+            const sessionId = `${indicator.name}${Math.random()}`;
+            const seriesId = `${indicator.name}${Math.random()}`;
+
+            tradingViewApi.chartCreateSession(sessionId!);
+            tradingViewApi.resolveSymbol(this.market!.symbol, sessionId!, seriesId!);
+            tradingViewApi.createSeries(sessionId!, seriesId!, '5', 100);
+            tradingViewApi.createStudy(sessionId!, indicator);
         }
     }
 }

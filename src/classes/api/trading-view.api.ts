@@ -24,7 +24,7 @@ export class TradingViewApi {
     private readonly senders: Sender[];
 
     constructor() {
-        this.ws = new WebSocket('wss://data.tradingview.com/socket.io/websocket', {
+        this.ws = new WebSocket('wss://data.tradingview.com/socket.io/websocket?type=chart', {
             origin: 'https://s.tradingview.com',
         });
         this.connected = false;
@@ -58,7 +58,7 @@ export class TradingViewApi {
                 if (messagesPacket.hasInitialMessage) {
                     return;
                 }
-
+                console.log(messagesPacket.data);
                 messagesPacket.data.forEach(message => this._onMessage(message.data));
             });
         }
