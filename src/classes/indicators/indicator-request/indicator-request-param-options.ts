@@ -3,7 +3,8 @@ export type IndicatorRequestParamOption =
     IndicatorRequestParamSourceOption |
     IndicatorRequestParamIntegerOption |
     IndicatorRequestParamBoolOption |
-    IndicatorRequestParamResolutionOption;
+    IndicatorRequestParamResolutionOption |
+    IndicatorRequestParamColorOption;
 
 export class IndicatorRequestParamTextOption {
     v: string;
@@ -62,5 +63,17 @@ export class IndicatorRequestParamResolutionOption {
         this.v = value;
         this.f = flag;
         this.t = 'resolution';
+    }
+}
+
+export class IndicatorRequestParamColorOption {
+    v: string;
+    f: boolean;
+    t: 'color';
+
+    constructor(value: string, flag = true) {
+        this.v = value;
+        this.f = flag;
+        this.t = 'color';
     }
 }

@@ -43,10 +43,11 @@ export class Chart {
         for (const indicator of this.indicators!) {
             const sessionId = `${indicator.name}${Math.random()}`;
             const seriesId = `${indicator.name}${Math.random()}`;
+            const timeframe = indicator.timeframe ?? '1';
 
             tradingViewApi.chartCreateSession(sessionId!);
             tradingViewApi.resolveSymbol(this.market!.symbol, sessionId!, seriesId!);
-            tradingViewApi.createSeries(sessionId!, seriesId!, '5', 100);
+            tradingViewApi.createSeries(sessionId!, seriesId!, timeframe, 100);
             tradingViewApi.createStudy(sessionId!, indicator);
         }
     }

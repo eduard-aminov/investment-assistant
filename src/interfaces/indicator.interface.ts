@@ -1,6 +1,7 @@
 export interface Indicator {
     id: string;
     name: string;
+    timeframe?: string;
 
     buildRequestParams(): object;
 

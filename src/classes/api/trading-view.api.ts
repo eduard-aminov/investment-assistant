@@ -58,7 +58,6 @@ export class TradingViewApi {
                 if (messagesPacket.hasInitialMessage) {
                     return;
                 }
-                console.log(messagesPacket.data);
                 messagesPacket.data.forEach(message => this._onMessage(message.data));
             });
         }
