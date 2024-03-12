@@ -15,7 +15,7 @@
         "test": "jest",
         "test-coverage": "npm test -- --coverage --coverageProvider=v8",
         "build": "tsc --project tsconfig.json",
-        "run": "npm run build && node dist/index.js",
+        "start": "npm run build && node dist/index.js",
         "publish": "npm run build && npm publish --access=public"
     },
     "repository": {

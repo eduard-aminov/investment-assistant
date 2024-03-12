@@ -2,6 +2,7 @@ export type IndicatorRequestParamOption =
     IndicatorRequestParamTextOption |
     IndicatorRequestParamSourceOption |
     IndicatorRequestParamIntegerOption |
+    IndicatorRequestParamFloatOption |
     IndicatorRequestParamBoolOption |
     IndicatorRequestParamResolutionOption |
     IndicatorRequestParamColorOption;
@@ -27,6 +28,18 @@ export class IndicatorRequestParamIntegerOption {
         this.v = value;
         this.f = flag;
         this.t = 'integer';
+    }
+}
+
+export class IndicatorRequestParamFloatOption {
+    v: number;
+    f: boolean;
+    t: 'float';
+
+    constructor(value: number, flag = true) {
+        this.v = value;
+        this.f = flag;
+        this.t = 'float';
     }
 }
 

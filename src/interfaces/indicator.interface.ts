@@ -5,5 +5,5 @@ export interface Indicator {
 
     buildRequestParams(): object;
 
-    normalizeRawData(data: any): unknown;
+    normalizeRawData(data: any, additionalData?: any): unknown;
 }

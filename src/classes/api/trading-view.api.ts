@@ -23,12 +23,14 @@ export class TradingViewApi {
 
     private readonly senders: Sender[];
 
-    constructor() {
+    constructor(authToken: string) {
         this.ws = new WebSocket('wss://data.tradingview.com/socket.io/websocket?type=chart', {
             origin: 'https://s.tradingview.com',
         });
         this.connected = false;
         this.senders = [];
+
+        this.setAuthToken(authToken);
     }
 
     onMessage(handler: MessageWebSocketHandler): this {

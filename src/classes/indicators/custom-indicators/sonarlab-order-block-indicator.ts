@@ -54,10 +54,14 @@ export class SonarlabOrderBlockIndicator {
             .build();
     }
 
-    normalizeRawData(data: any): number {
-        const min = Math.min(...JSON.parse(data?.ns?.d)?.graphicsCmds?.create?.dwgboxes?.map((box: any) => box?.data.map((value: any) => value?.y2)).flat());
-
-        console.log(min);
-        return min;
+    normalizeRawData(data: any): any {
+        const value = JSON.parse(data?.ns?.d);
+        if (value?.graphicsCmds?.create?.dwgboxes) {
+            return {
+                timeframe: this.timeframe,
+                value: Math.min(...value?.graphicsCmds?.create?.dwgboxes?.map((box: any) => box?.data?.map((value: any) => value?.y2))?.flat())
+            };
+        }
+        return null;
     }
 }

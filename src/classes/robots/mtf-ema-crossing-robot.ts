@@ -16,15 +16,14 @@ export class MtfEmaCrossingRobot implements Robot {
     }
 
     onMessage = (data: MtfEmaIndicatorValues): void => {
-        console.log(data);
         const crossingTimeframes: Array<Array<keyof MtfEmaIndicatorValues>> = [
             ['M1', 'M5'],
-            ['M5', 'M15'],
-            ['M15', 'M30'],
-            ['M30', 'H1'],
-            ['H1', 'H2'],
-            ['H2', 'H4'],
-            ['H4', 'D1'],
+            // ['M5', 'M15'],
+            // ['M15', 'M30'],
+            // ['M30', 'H1'],
+            // ['H1', 'H2'],
+            // ['H2', 'H4'],
+            // ['H4', 'D1'],
         ];
 
         for (const [timeframe1, timeframe2] of crossingTimeframes) {
@@ -50,7 +49,7 @@ export class MtfEmaCrossingRobot implements Robot {
         timeframe1: keyof MtfEmaIndicatorValues,
         timeframe2: keyof MtfEmaIndicatorValues
     ): boolean {
-        if (!previousData) {
+        if (!previousData || !currentData) {
             return false;
         }
         return (previousData[timeframe1]! <= previousData[timeframe2]!) && (currentData[timeframe1]! > currentData[timeframe2]!) ||

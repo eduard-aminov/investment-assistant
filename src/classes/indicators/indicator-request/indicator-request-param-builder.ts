@@ -23,6 +23,11 @@ export class IndicatorRequestParamBuilder {
         return this;
     }
 
+    param(num: number, value: IndicatorRequestParamOption): this {
+        this.params[`in_${num}`] = value;
+        return this;
+    }
+
     param0(value: IndicatorRequestParamOption): this {
         this.params['in_0'] = value;
         return this;
